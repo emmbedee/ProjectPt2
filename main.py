@@ -2,7 +2,6 @@ import pygame
 import pygame.freetype
 import sys
 import random
-import game as play
 
 
 class Player(pygame.sprite.Sprite):
@@ -33,7 +32,6 @@ class Player(pygame.sprite.Sprite):
 
         self.score = 0
         self.game_over = False
-        self.high = self.score
 
     def update(self) -> None:
         self.basic_health()
@@ -49,7 +47,6 @@ class Player(pygame.sprite.Sprite):
         self.current_work -= random.uniform(0.05, 0.25)
 
         self.score += 1
-
 
     def get_damage(self, amount):
         if self.current_health > 0:
@@ -104,18 +101,24 @@ class Player(pygame.sprite.Sprite):
 
     def fail_state(self):
         if self.current_health <= 0:
+            self.write_score(self.score)
             self.restart()
         if self.current_family <= 0:
+            self.write_score(self.score)
             self.restart()
         if self.current_work <= 0:
+            self.write_score(self.score)
             self.restart()
         if self.current_school <= 0:
+            self.write_score(self.score)
             self.restart()
 
     def restart(self):
         self.__init__()
 
-
+    def write_score(self, score):
+        with open('highscore.txt', 'w') as file:
+            file.write(str(score))
 
 
 pygame.init()
@@ -197,15 +200,16 @@ def game_loop():
                 if event.button == 1:
                     click = True
 
-
-
+        def read_score():
+            with open('highscore.txt', 'r') as file:
+                return int(file.read())
 
         screen.fill((30, 30, 30))
         user.draw(screen)
         user.update()
         title = font.render('LIFE SIMULATOR 2022', True, (255, 255, 255))
         score = font.render(f'Score = {user.sprite.score}', True, (255, 255, 255))
-        high_score = font.render(f'High score = {user.sprite.high}', True, (255, 255, 255))
+        high_score = font.render(f'High score = {read_score()}', True, (255, 255, 255))
         quit_text = font.render('QUIT', True, (random.randint(100, 255), 0, random.randint(100, 255)))
         quit_button = pygame.Rect(300, 700, 200, 50)
         screen.blit(high_score, (10, 500))
@@ -222,10 +226,6 @@ def game_loop():
             if click:
                 pygame.quit()
                 sys.exit()
-
-
-
-
 
 
 # game_loop()
