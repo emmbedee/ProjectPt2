@@ -117,8 +117,13 @@ class Player(pygame.sprite.Sprite):
         self.__init__()
 
     def write_score(self, score):
-        with open('highscore.txt', 'w') as file:
-            file.write(str(score))
+        with open('highscore.txt', 'r') as file:
+            last = int(file.read())
+        if score < last:
+            pass
+        else:
+            with open('highscore.txt', 'w') as file:
+                file.write(str(score))
 
 
 pygame.init()
@@ -227,6 +232,4 @@ def game_loop():
                 pygame.quit()
                 sys.exit()
 
-
-# game_loop()
 main_menu()
