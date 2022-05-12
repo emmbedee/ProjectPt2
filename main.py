@@ -31,17 +31,25 @@ class Player(pygame.sprite.Sprite):
         self.family_bar_length = 400
         self.family_ratio = self.maximum_family / self.family_bar_length
 
+        self.score = 0
+        self.game_over = False
+        self.high = self.score
+
     def update(self) -> None:
         self.basic_health()
         self.work()
         self.school()
         self.family()
+        self.fail_state()
 
-        # Basic decrements.
+        # Basic ticks.
         self.current_health -= random.uniform(0.05, 0.25)
         self.current_family -= random.uniform(0.05, 0.25)
         self.current_school -= random.uniform(0.05, 0.25)
         self.current_work -= random.uniform(0.05, 0.25)
+
+        self.score += 1
+
 
     def get_damage(self, amount):
         if self.current_health > 0:
@@ -94,6 +102,21 @@ class Player(pygame.sprite.Sprite):
         current_event = random.choice(events)
         # if current_event == 0:
 
+    def fail_state(self):
+        if self.current_health <= 0:
+            self.restart()
+        if self.current_family <= 0:
+            self.restart()
+        if self.current_work <= 0:
+            self.restart()
+        if self.current_school <= 0:
+            self.restart()
+
+    def restart(self):
+        self.__init__()
+
+
+
 
 pygame.init()
 pygame.freetype.init()
@@ -101,27 +124,30 @@ screen = pygame.display.set_mode((800, 800))
 clock = pygame.time.Clock()
 user = pygame.sprite.GroupSingle(Player())
 font = pygame.font.Font('freesansbold.ttf', 32)
-click = False
+
+
+# click = False
 
 
 def main_menu():
     while True:
+
         screen.fill((0, 0, 0))
-        title = font.render('LIFE SIMULATOR 2022', True, (255, 255, 255))
+        title = font.render('LIFE SIMULATOR 2022', True, (random.randint(100, 255), 0, random.randint(100, 255)))
+        play_text = font.render('PLAY', True, (random.randint(100, 255), 0, random.randint(100, 255)))
+        quit_text = font.render('QUIT', True, (random.randint(100, 255), 0, random.randint(100, 255)))
         pygame.draw.rect(screen, (255, 255, 255), (200, 5, 400, 40), 4)
         screen.blit(title, (225, 10))
 
         mx, my = pygame.mouse.get_pos()
 
-        button_1 = pygame.Rect(300, 100, 200, 50)
-        button_2 = pygame.Rect(300, 200, 200, 50)
+        play_button = pygame.Rect(300, 300, 200, 50)
+        quit_button = pygame.Rect(300, 400, 200, 50)
 
-        if button_1.collidepoint((mx, my)):
-            if click:
-                game_loop()
-
-        pygame.draw.rect(screen, (255, 255, 255), button_1)
-        pygame.draw.rect(screen, (255, 255, 255), button_2)
+        pygame.draw.rect(screen, (255, 255, 255), play_button)
+        pygame.draw.rect(screen, (255, 255, 255), quit_button)
+        screen.blit(play_text, (360, 310))
+        screen.blit(quit_text, (360, 410))
 
         click = False
 
@@ -137,12 +163,22 @@ def main_menu():
                 if event.button == 1:
                     click = True
 
+        if play_button.collidepoint((mx, my)):
+            if click:
+                game_loop()
+        if quit_button.collidepoint((mx, my)):
+            if click:
+                pygame.quit()
+                sys.exit()
+
         pygame.display.update()
+        pygame.display.set_caption('Life Simulator 2022')
         clock.tick(60)
 
 
 def game_loop():
     while True:
+        click = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -157,16 +193,40 @@ def game_loop():
                 if event.key == pygame.K_DOWN:
                     user.sprite.add_family(10)
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+
+
+
         screen.fill((30, 30, 30))
         user.draw(screen)
         user.update()
         title = font.render('LIFE SIMULATOR 2022', True, (255, 255, 255))
+        score = font.render(f'Score = {user.sprite.score}', True, (255, 255, 255))
+        high_score = font.render(f'High score = {user.sprite.high}', True, (255, 255, 255))
+        quit_text = font.render('QUIT', True, (random.randint(100, 255), 0, random.randint(100, 255)))
+        quit_button = pygame.Rect(300, 700, 200, 50)
+        screen.blit(high_score, (10, 500))
+        screen.blit(score, (10, 10))
         screen.blit(title, (225, 10))
         pygame.draw.rect(screen, (255, 255, 255), (200, 5, 400, 40), 4)
+        pygame.draw.rect(screen, (255, 255, 255), quit_button)
+        screen.blit(quit_text, (360, 710))
         pygame.display.update()
         pygame.display.set_caption('Life Simulator 2022')
         clock.tick(60)
+        mx, my = pygame.mouse.get_pos()
+        if quit_button.collidepoint((mx, my)):
+            if click:
+                pygame.quit()
+                sys.exit()
+
+
+
+
+
 
 # game_loop()
 main_menu()
-
