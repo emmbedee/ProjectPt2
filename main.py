@@ -33,6 +33,13 @@ class Player(pygame.sprite.Sprite):
         self.score = 0
         self.game_over = False
 
+        self.default_bleed_rate = random.uniform(0.05, 0.15)
+        self.bleed_rate_multi = 1
+
+        self.write_score(self.score)
+        self.accumulated_time = 0
+        self.start_time = pygame.time.get_ticks()
+
     def update(self) -> None:
         self.basic_health()
         self.work()
@@ -41,12 +48,16 @@ class Player(pygame.sprite.Sprite):
         self.fail_state()
 
         # Basic ticks.
-        self.current_health -= random.uniform(0.05, 0.25)
-        self.current_family -= random.uniform(0.05, 0.25)
-        self.current_school -= random.uniform(0.05, 0.25)
-        self.current_work -= random.uniform(0.05, 0.25)
+        self.current_health -= self.default_bleed_rate * self.bleed_rate_multi
+        self.current_family -= self.default_bleed_rate * self.bleed_rate_multi
+        self.current_school -= self.default_bleed_rate * self.bleed_rate_multi
+        self.current_work -= self.default_bleed_rate * self.bleed_rate_multi
 
         self.score += 1
+
+    def time_calc(self):
+        if pygame.time.get_ticks() >= 30:
+            self.random_event()
 
     def get_damage(self, amount):
         if self.current_health > 0:
@@ -97,7 +108,21 @@ class Player(pygame.sprite.Sprite):
     def random_event(self):
         events = [0, 1, 2, 3]
         current_event = random.choice(events)
-        # if current_event == 0:
+        if current_event == 0:
+            print('Covid!')
+            covid_text = font.render('PLAY', True, (random.randint(100, 255), 0, random.randint(100, 255)))
+            screen.blit(covid_text, (360, 310))
+
+            self.bleed_rate_multi = 5
+        if current_event == 1:
+            print('Finals!')
+            self.bleed_rate_multi = 2
+        if current_event == 2:
+            print('A death in the family!')
+            self.bleed_rate_multi = 4
+        if current_event == 3:
+            print('A big work project!')
+            self.bleed_rate_multi = 3
 
     def fail_state(self):
         if self.current_health <= 0:
@@ -193,12 +218,16 @@ def game_loop():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
+                    user.sprite.time_calc()
                     user.sprite.add_health(10)
                 if event.key == pygame.K_LEFT:
+                    user.sprite.time_calc()
                     user.sprite.add_work(10)
                 if event.key == pygame.K_RIGHT:
+                    user.sprite.time_calc()
                     user.sprite.add_school(10)
                 if event.key == pygame.K_DOWN:
+                    user.sprite.time_calc()
                     user.sprite.add_family(10)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -217,8 +246,8 @@ def game_loop():
         high_score = font.render(f'High score = {read_score()}', True, (255, 255, 255))
         quit_text = font.render('QUIT', True, (random.randint(100, 255), 0, random.randint(100, 255)))
         quit_button = pygame.Rect(300, 700, 200, 50)
-        screen.blit(high_score, (10, 500))
-        screen.blit(score, (10, 10))
+        screen.blit(high_score, (400, 500))
+        screen.blit(score, (10, 500))
         screen.blit(title, (225, 10))
         pygame.draw.rect(screen, (255, 255, 255), (200, 5, 400, 40), 4)
         pygame.draw.rect(screen, (255, 255, 255), quit_button)
