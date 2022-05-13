@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.score = 0
         self.game_over = False
         self.event_text = 0
-        self.default_bleed_rate = random.uniform(0.05, 0.15)
+        self.default_bleed_rate = random.uniform(0.05, 0.10)
         self.bleed_rate_multi = 1
         self.write_score(self.score)
 
@@ -52,7 +52,6 @@ class Player(pygame.sprite.Sprite):
         self.current_family -= self.default_bleed_rate * self.bleed_rate_multi
         self.current_school -= self.default_bleed_rate * self.bleed_rate_multi
         self.current_work -= self.default_bleed_rate * self.bleed_rate_multi
-
         self.score += 1
 
     def add_health(self, amount: int) -> None:
@@ -131,7 +130,7 @@ class Player(pygame.sprite.Sprite):
         current_event = random.choice(events)
         if current_event == 0:
             self.event_text = 0
-            self.bleed_rate_multi = 5
+            self.bleed_rate_multi = 3
         if current_event == 1:
             self.event_text = 1
             self.bleed_rate_multi = 2
@@ -281,6 +280,10 @@ def game_loop():
         screen.fill((30, 30, 30))
         user.draw(screen)
         user.update()
+        up = font.render('UP', True, (255, 255, 255))
+        left = font.render('LEFT', True, (255, 255, 255))
+        right = font.render('RIGHT', True, (255, 255, 255))
+        down = font.render('DOWN', True, (255, 255, 255))
         title = font.render('LIFE SIMULATOR 2022', True, (255, 255, 255))
         score = font.render(f'Score = {user.sprite.score}', True, (255, 255, 255))
         high_score = font.render(f'High score = {read_score()}', True, (255, 255, 255))
@@ -289,10 +292,16 @@ def game_loop():
         event = font.render(f'Event: {event_key}', True, (255, 255, 255))
         quit_text = font.render('QUIT', True, (random.randint(100, 255), 0, random.randint(100, 255)))
         quit_button = pygame.Rect(300, 700, 200, 50)
+
         screen.blit(high_score, (10, 550))
         screen.blit(score, (10, 500))
         screen.blit(title, (225, 10))
-        screen.blit(event, (175, 450))
+        screen.blit(event, (175, 650))
+        screen.blit(up, (380, 130))
+        screen.blit(left, (360, 230))
+        screen.blit(right, (350, 330))
+        screen.blit(down, (350, 430))
+
         pygame.draw.rect(screen, (255, 255, 255), (200, 5, 400, 40), 4)
         pygame.draw.rect(screen, (255, 255, 255), quit_button)
         screen.blit(quit_text, (360, 710))
